@@ -1,0 +1,12 @@
+.form-register {
+    max-width: 500px;
+    padding: 15px;
+    margin: 0 auto;
+}
+.my-pagination {
+    margin: 0;
+}
+.search-form {
+    margin: 25px 0;
+    text-align: right;
+}

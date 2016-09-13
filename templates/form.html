@@ -1,0 +1,143 @@
+<div class = "container">
+    <form class="form-register" action="register.php" method="POST">
+        <h2>Регистрация / Редактирование информации</h2>
+        <div class="form-group">
+            <label>Имя:</label>
+            <input required  autofocus type="text" class="form-control" name="name" placeholder="Иван" value=
+                "<?php if (isset($values['name'])): echo $values['name']; endif; ?>"
+            />      
+            <?php if (isset($errors['name'][0])): ?>
+                <div class="alert alert-warning" role="alert">    
+                    <?= "Имя должно содержать только буквы, символ(ы): {$errors['name'][0]} - недопустимы"; ?>
+                </div>
+            <?php endif; ?>        
+            <?php if (isset($errors['name'][01])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Имя не должно быть длиннее 90 символов, а вы ввели {$errors['name'][1]}"; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="form-group">
+            <label>Фамилия:</label>
+                <input required type="text" class="form-control" name="lastName" placeholder="Иванов"
+                value="<?php if (isset($values['lastName'])): echo $values['lastName']; endif; ?>"/>
+            </label>
+            <?php if (isset($errors['lastName'][0])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Фамилия может содержать только буквы, \" ' \" или \"-\", символ(ы): {$errors['lastName'][0]} - недопустимы"; ?>
+                </div>
+            <?php endif; ?>
+            <?php if (isset($errors['lastName'][1])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Фамилия не должна быть длиннее 90 символов, а вы ввели {$errors['lastName'][1]}"; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="form-group">
+            <label>Пол:</label>
+            <div class="checkbox">
+                <input type="radio" name="gender" value="GENDER_MALE" id="GENDER_MALE"
+                    <?php if (isset($values['gender']) && ($values['gender']==GENDER_MALE)): echo "checked"; endif; ?>>
+                <label for="GENDER_MALE">Мужской</label>
+            </div>
+            <div class="checkbox">
+                <input type="radio" name="gender" value="GENDER_FEMALE" id="GENDER_FEMALE"
+                    <?php if (isset($values['gender']) && ($values['gender']==GENDER_FEMALE)): echo "checked"; endif; ?>>
+                <label for="GENDER_FEMALE">Женский</label>
+            </div>
+            <?php if (isset($errors['gender']) && (!is_null($errors['gender']))): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Поле может принимать значение \"1\" или \"0\", вы отправили какую-то поебень:{$errors['gender']}"; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+            
+        <div class="form-group">
+             <label>Номер группы:</label>
+            <input required type="text" class="form-control" name="groupNum" placeholder="ИГН-13"
+            value="<?php if (isset($values['groupNum'])): echo $values['groupNum']; endif; ?>"/>
+        
+            <?php if (isset($errors['groupNum'][0])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Номер группы должен содержать только цифры, буквы и \"-\", символ(ы): {$errors['groupNum'][0]} - недопустимы"; ?>
+                </div>
+            <?php endif; ?>          
+            <?php if (isset($errors['groupNum'][1])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Номер группы должен содержать от 2 до 10 символов, а вы ввели {$errors['groupNum'][1]}";  ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="form-group">
+            <label>E-mail:</label>
+            <input required type="email" class="form-control" name="email" placeholder="ivan@google.com"
+                value="<?php if (isset($values['email'])): echo $values['email']; endif; ?>"
+            />            
+            <?php if (isset($errors['email'])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Похоже вместо email вы ввели хакую-то херню: {$errors['email']}"; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+            
+        <div class="form-group">
+            <label>Cуммарное число баллов ЕГЭ:</label>
+            <input required type="number" class="form-control"  max="400" nim="0" title="Суммарное количество баллов ЕГЭ не может быть больше 400" name="egePoints" placeholder="400" value=
+                "<?php if (isset($values['egePoints'])): echo $values['egePoints']; endif; ?>"
+            />   
+            <?php if (isset($errors['egePoints'][0])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Суммарное количество баллов ЕГЭ должно содержать только цифры, символ(ы): {$errors['egePoints'][0]} - недопустимы"; ?>
+                </div>
+            <?php endif; ?> 
+            <?php if (isset($errors['egePoints'][1])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Суммарное количество баллов ЕГЭ не может быть больше 400, а вы ввели {$errors['egePoints'][1]}";  ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="form-group">
+            <label>Год рождения:</label>
+            <input required type="number" class="form-control" name="dateOfBirth" placeholder="2001" value=
+                "<?php if (isset($values['dateOfBirth'])): echo $values['dateOfBirth']; endif; ?>"
+            />                    
+            <?php if (isset($errors['dateOfBirth'][0])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Год рождения должен содержать только цифры, символ(ы): {$errors['dateOfBirth'][0]} - недопустимы"; ?>
+                </div>
+            <?php endif; ?>            
+            <?php if (isset($errors['dateOfBirth'][1])): ?>
+                <div class="alert alert-warning" role="alert">
+                    <?= "Год рождения должен быть в интервале от 1900 до текущего, а вы ввели {$errors['dateOfBirth'][1]}"; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+            
+        <div class="form-group">
+            <label>Прописка:</label>
+            <div class="checkbox">
+                <input type="radio" name="registry" value="REGISTRY_LOCAL" id="REGISTRY_LOCAL"
+                    <?php if (isset($values['registry']) && ($values['registry']==REGISTRY_LOCAL)): echo "checked"; endif; ?>>
+                <label for="REGISTRY_LOCAL">Местная</label>
+            </div>
+            <div class="checkbox">
+                <input type="radio" name="registry" value="REGISTRY_NOT_LOCAL" id="REGISTRY_NOT_LOCAL"
+                    <?php if (isset($values['registry']) && ($values['registry']==REGISTRY_NOT_LOCAL)): echo "checked"; endif; ?>>
+                <label for="REGISTRY_NOT_LOCAL">Иногородняя</label>
+            </div>
+            <?php if (isset($errors['registry'])): ?>
+                <div class="alert alert-warning" role="alert">
+                     <?= "Поле может принимать значение \"1\" или \"0\", вы отправили какую-то поебень:{$errors['registry']}"; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Отправить</button>
+    </form>
+</div>
+</div>
+</body>
+</html>
