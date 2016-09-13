@@ -59,7 +59,7 @@ class AbiturientDataGateway
     }
     public function updateStudent(Abiturient $abiturient, $id)
     {
-        $values = $this->getValuesArray($abiturient);
+        $values = $this->getValuesAsArray($abiturient);
         array_pop($values); // delete userPassword        
         foreach ($values as $valueName => $value) {
             $sql = "UPDATE abiturients SET " . $valueName . " = '" . $value . "' WHERE id = " . $id;
@@ -72,7 +72,7 @@ class AbiturientDataGateway
         $sql = "SELECT name, lastName, groupNum, egePoints
                 FROM abiturients";
         $searchKey = preg_replace (
-                                array("![^a-zA-ZА-Яа-я0-9\\s]!ui", "! +!ui"),
+                                array("![^a-zA-ZА-Яа-я0-9\\s\-\`]!ui", "! +!ui"),
                                 array("", " "),
                                 $searchKey
                                 );

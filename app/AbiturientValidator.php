@@ -51,7 +51,7 @@ class AbiturientValidator
         $this->errors["name"][1] = $this->validateLenght($name, 90); 
         // Фамилия 
         $lastName = $abiturient->getLastName();
-        $this->errors["lastName"][0] = $this->findForbiddenSymbols('/[^a-zа-яё\-\']/ui', $lastName);
+        $this->errors["lastName"][0] = $this->findForbiddenSymbols('/[^a-zа-яё\-\`]/ui', $lastName);
         $this->errors["lastName"][1] = $this->validateLenght($lastName, 90);
         // Пол
         $gender = $abiturient->getGender();
