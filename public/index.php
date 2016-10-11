@@ -1,15 +1,11 @@
 <?php
-require_once '/../app/init.php';
+require_once (__DIR__ . '/../app/init.php');
 
-// Если адресная строка пуста
-if (empty($_GET)) {
-    // Подгружаем страницу изменения данных
-    header('Location: register.php');      
-}   
-
-if (isset($_GET['notify']) && $_GET['notify'] =='registered') {
+if (empty($_GET) || isset($_GET['notify']) && $_GET['notify'] =='registered') {
     // Подгружаем страницу сообщения
-    require("../templates/message.html");
+    $view = new app\View;
+    $view->render('message.html');
+    exit;
 }
 
 // Строка запроса, собираем параметры в массив
@@ -36,23 +32,39 @@ if (isset($_GET['order'])) {
 
 // Получаем инфу про кол-во записей из базы
 if (isset($curl['search'])) {
-    $totalRecords = $adg->countSearchingStudents($curl['search']);   
+    $totalRecords = $adg->countSearchingAbiturients($curl['search']);   
 } else {
     $totalRecords = $adg->getTotalRecords();
 }
 
 // Получаем cмещение и лимит для запроса записей и кол-во страниц
+$recordsPerPage = 5; // Количество записей на одной странице списка студентов
 $pager = new app\Pager($totalRecords, $recordsPerPage);
 $totalPages = $pager->getTotalPages();
 $offset = $pager->getOffset($curl['page']);
 $limit = $pager->getLimit($curl['page']);  
    
-// Запрашиваем список студентов
-$studentsValues = $adg->getStudents($curl['search'], $limit, $offset, $curl['sort'], $curl['order']);
+// Загружаем студентов из базы
+$abiturients = $adg->getAbiturients($curl['search'], $limit, $offset, $curl['sort'], $curl['order']);
 
-// Подгружаем шаблон со списком студентов
-require("../templates/header.html");
-require("../templates/list.html");
+// Поля для отображения
+$allowedValues = array
+(
+    'name',
+    'lastName',
+    'groupNum',
+    'egePoints'
+);
+
+// Подгружаем шаблон списка студентов
+$view = new app\View;
+$view->render('list.html', [
+                            'allowedValues' => $allowedValues,
+                            'abiturients' => $abiturients,
+                            'totalPages' => $totalPages,                            
+                            'recordsPerPage' => $recordsPerPage,
+                            'curl' => $curl
+                           ]);
 
 
     
