@@ -2,48 +2,33 @@
 namespace app;
 class Abiturient
 {
-      
-    private $name = "";
-    private $lastName = "";
-    private $gender = NULL;  
-    private $groupNum = "";
-    private $email = "";
-    private $egePoints = "";
-    private $dateOfBirth = "";
-    private $registry = NULL; 
-    private $userPassword = NULL;   
+    // Константы
+    const GENDER_MALE = "GENDER_MALE";
+    const GENDER_FEMALE = "GENDER_FEMALE";
+    const REGISTRY_LOCAL = "REGISTRY_LOCAL";
+    const REGISTRY_NOT_LOCAL = "REGISTRY_NOT_LOCAL";
     
-    public function __construct(array $values)
+    public $name = "";
+    public $lastName = "";
+    public $gender = NULL;  
+    public $groupNum = "";
+    public $email = "";
+    public $egePoints = "";
+    public $dateOfBirth = "";
+    public $registry = NULL; 
+    public $userPassHash = NULL;   
+    
+    public function __construct()
+    {
+    }    
+    // Обновление свойств из массива
+    public function updateValues(Array $values)
     {
         // Устанавливаем свойства в цикле, если поле с именем свойства существует
         foreach ($values as $propertyName=>$value) {
             if (property_exists($this, $propertyName)) {
                 $this->$propertyName = $value;
             }
-        }
-    }
-    
-    // Получение свойств объекта через вызов магического метода
-    public function __call($methodName, $argument)
-    {
-        $args = preg_split('/(?<=\w)(?=[A-Z])/', $methodName);        
-        $action = array_shift($args);
-        $propertyName = lcfirst(implode($args));
- 
-        switch ($action) {
-           case 'get' :
-                if (isset($this->$propertyName)) {
-                    return $this->$propertyName;
-                } else {
-                    return NULL;
-                };
-            case 'set' :
-                if (!isset($this->$propertyName)) {
-                    $this->$propertyName = $argument[0];
-                    return TRUE;
-                } else {
-                    return NULL;
-                };
         }
     }
 }
