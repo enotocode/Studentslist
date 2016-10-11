@@ -39,19 +39,19 @@ class LinkHelper
     }
     private static function getOrder($order)
     {
-        if (!isset($order) | $order == ASC) {
-            return DESC;
+        if (!isset($order) | $order == AbiturientDataGateway::ASC) {
+            return AbiturientDataGateway::DESC;
         } else {
-            return ASC;
+            return AbiturientDataGateway::ASC;
         }        
     }
     
     public static function getOrderIcon(Array $curl, $colum)
     {
         if ($curl['sort'] == $colum) {
-            if (!isset($curl['order']) | $curl['order'] == ASC) {
+            if (!isset($curl['order']) | $curl['order'] == AbiturientDataGateway::ASC) {
                 return "&#9650";
-            } else if (isset($curl['order']) | $curl['order'] == DESC){
+            } else if (isset($curl['order']) | $curl['order'] == AbiturientDataGateway::DESC){
                 return "&#9660";
             }
         }        
