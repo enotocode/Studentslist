@@ -3,6 +3,10 @@ namespace app;
 
 class AbiturientDataGateway
 {
+    // Константы
+    const ASC = 'ASC';
+    const DESC = 'DESC';
+    
     private $pdo = null;
     private $sort = array(
                         "name"          =>  "name",
@@ -13,69 +17,63 @@ class AbiturientDataGateway
                         "egePoints"     =>  "egePoints",
                         "dateOfBirth"   =>  "dateOfBirth",    
                         "registry"      =>  "registry",
-                        "userPassword"  =>  "userPassword"
-                         );
-    
-    public function __construct($pdo)
+                        "userPassHash"  =>  "userPassHash"
+                         );    
+    public function __construct(\PDO $pdo)
     {
-
         $this->pdo = $pdo;        
     }
-    public function addStudent(Abiturient $abiturient)
+    public function addAbiturient(Abiturient $abiturient)
     {
-        $stm = $this->pdo->prepare("INSERT INTO abiturients (
-                                name,
-                                lastName,
-                                gender,
-                                groupNum,
-                                email,
-                                egePoints,
-                                dateOfBirth,    
-                                registry,
-                                userPassword
-                             )
-                             values (
-                                :name,
-                                :lastName,
-                                :gender, 
-                                :groupNum,
-                                :email,
-                                :egePoints,
-                                :dateOfBirth,
-                                :registry,
-                                :userPassword
-                                )");        
-        $values = $this->getValuesAsArray($abiturient);
+        $allowed = array(
+                            'name',
+                            'lastName',
+                            'gender',
+                            'groupNum',
+                            'email',
+                            'egePoints',
+                            'dateOfBirth',    
+                            'registry',
+                            'userPassHash'
+                        );
+        $values = $this->getAbiturientAsArray($abiturient, $allowed);
+        $sql = "INSERT INTO abiturients SET " . $this->pdoSet($allowed, $values);
+        $stm = $this->pdo->prepare($sql);
         $stm->execute($values);
     }
-    public function getStudent($id)
+    public function getAbiturient($id)
     {
-        $sql = "SELECT * FROM abiturients WHERE id = " . $id;
+        $sql = "SELECT * FROM abiturients WHERE id = ?";
         $stm = $this->pdo->prepare($sql);
+        $stm->bindValue(1, $id, \PDO::PARAM_STR);
         $stm->execute();
-        $student = $stm->fetchAll(\PDO::FETCH_ASSOC);
+        $abiturient = $this->createAbiturient($stm->fetch(\PDO::FETCH_ASSOC));        
 
-        return $student[0];
+        return $abiturient;
     }
-    public function updateStudent(Abiturient $abiturient, $id)
-    {
-        $values = $this->getValuesAsArray($abiturient);
-        array_pop($values); // delete userPassword        
-        foreach ($values as $valueName => $value) {
-            $sql = "UPDATE abiturients SET " . $valueName . " = '" . $value . "' WHERE id = " . $id;
-            $stm = $this->pdo->prepare($sql);
-            $stm->execute();
-        }        
+    public function updateAbiturient(Abiturient $abiturient, $id)
+    {        
+        $allowed = array(
+                            'name',
+                            'lastName',
+                            'gender',
+                            'groupNum',
+                            'email',
+                            'egePoints',
+                            'dateOfBirth',    
+                            'registry'
+                        );
+        $values = $this->getAbiturientAsArray($abiturient, $allowed);
+        $sql = "UPDATE abiturients SET " . $this->pdoSet($allowed, $values) . " WHERE id = :id";
+        $values['id'] = $id;
+        $stm = $this->pdo->prepare($sql);
+        $stm->execute($values);               
     }
-    public function getStudents($searchKey, $limit, $offset, $colum, $order)
+    public function getAbiturients($searchKey, $limit, $offset, $colum, $order)
     {       
         $sql = "SELECT name, lastName, groupNum, egePoints
                 FROM abiturients";
-        $searchKey = preg_replace (
-                                array("![^a-zA-ZА-Яа-я0-9\\s\-\`]!ui", "! +!ui"),
-                                array("", " "),
-                                $searchKey
-                                );
+        $searchKey = $this->filterSymbols($searchKey);
         if ($searchKey!=" " && $searchKey!="") {
             $sql .= " WHERE CONCAT (name, lastName, groupNum, egePoints, email, dateOfBirth) LIKE '%" . $searchKey . "%'";
         } 
@@ -84,9 +82,9 @@ class AbiturientDataGateway
         }  else {
             $sql .= " ORDER BY egePoints";
         }
-        if (isset($order) && $order==DESC && (isset($colum))) {            
+        if (isset($order) && $order==self::DESC && (isset($colum))) {            
             $sql .= " DESC";
-        } else if (isset($order) && $order==DESC && (!isset($colum))) {
+        } else if (isset($order) && $order==self::DESC && (!isset($colum))) {
             $sql .= " ORDER BY name DESC";
         }
         if (isset($limit) && isset($offset)) {            
@@ -94,54 +92,81 @@ class AbiturientDataGateway
         }
         $stm = $this->pdo->prepare($sql);
         $stm->execute();
-        $students = $stm->fetchAll(\PDO::FETCH_ASSOC);
-        return $students;
+        $values = $stm->fetchAll(\PDO::FETCH_ASSOC);
+        $abiturients = $this->createAbiturient($values);
+        return $abiturients;
     }                
-    public function countSearchingStudents($searchKey)
+    public function countSearchingAbiturients($searchKey)
     {       
-        $searchKey = preg_replace (
-                                array("![^a-zA-ZА-Яа-я0-9\s]!ui", "! +!ui"),
-                                array("", " "),
-                                $searchKey
-                                );
+        $searchKey = $this->filterSymbols($searchKey);
         $sql = "SELECT COUNT(*)
                 FROM abiturients
                 WHERE CONCAT(name, lastName, groupNum, egePoints, email)
                 LIKE '%" . $searchKey ."%'";
         $stm = $this->pdo->prepare($sql);
         $stm->execute();
-        $result = $stm->fetch(\PDO::FETCH_NUM);
-        return $result[0];
+        $result = $stm->fetchColumn();
+        return $result;
     }
-    public function getIdByPassword($userPassword)
+    public function getIdByPassHash($userPassHash)
     {
-        //$sql = "SELECT id FROM abiturients WHERE userpassword = ?"// . $userPassword;        
-        $stm = $this->pdo->prepare("SELECT id FROM abiturients WHERE userpassword = ?");
-        $stm->bindValue(1, $userPassword, \PDO::PARAM_STR);
+        //$sql = "SELECT id FROM abiturients WHERE userpassword = ?"// . $userPassHash;        
+        $stm = $this->pdo->prepare("SELECT id FROM abiturients WHERE userPassHash = ?");
+        $stm->bindValue(1, $userPassHash, \PDO::PARAM_STR);
         $stm->execute();
-        $id = $stm->fetch(\PDO::FETCH_ASSOC);
-        return $id['id'];
+        $id = $stm->fetchColumn();
+        return $id;
     }
     public function getTotalRecords()
     {
         $stm = $this->pdo->prepare('SELECT COUNT(*) FROM abiturients');
         $stm->execute();
-        $result = $stm->fetch(\PDO::FETCH_NUM);
-        return $result[0];
+        $result = $stm->fetchColumn(); 
+        return $result;
     }
-    private function getValuesAsArray(Abiturient $abiturient)
+    private function pdoSet($allowed, &$values)
     {
-        $values = array (
-            "name"=>$abiturient->getName(),
-            "lastName"=>$abiturient->getLastName(),
-            "gender"=>$abiturient->getGender(), 
-            "groupNum"=>$abiturient->getGroupNum(),
-            "email"=>$abiturient->getEmail(),
-            "egePoints"=>$abiturient->getEgePoints(),
-            "dateOfBirth"=>$abiturient->getDateOfBirth(),
-            "registry"=>$abiturient->getRegistry(),
-            "userPassword"=>$abiturient->getUserPassword()
-        );
+        $resultValues = array();
+        $set = "";
+        foreach($allowed as $field){
+            if (isset($values[$field])){
+                $resultValues[$field] = $values[$field];
+                $set .= $field . "=:$field, ";
+            }
+        }
+        $values = $resultValues;
+        return substr($set, 0, -2); 
+    }
+    private function filterSymbols($str)
+    {
+        $str = preg_replace (
+                                array("![^a-zA-ZА-Яа-яЁё0-9\\s]!ui", "! +!ui"),
+                                array("", " "),
+                                $str
+                                );
+        return $str;
+    }
+    private function getAbiturientAsArray(Abiturient $abiturient, $allowed)
+    {
+        foreach($allowed as $field) {
+            $values[$field] = $abiturient->$field;
+        }
         return $values;
     }
+    private function createAbiturient(Array $values)
+    {
+        if (!is_array(current($values))) {
+            $abiturient = new Abiturient();
+            $abiturient->updateValues($values);
+            return $abiturient;
+        } else {
+            foreach($values as $fields) {
+                $abiturient = new Abiturient();
+                $abiturient->updateValues($fields);
+                $abiturients[] = $abiturient;
+            }
+        }
+        return $abiturients;
+    }
+    
 }
