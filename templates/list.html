@@ -1,17 +1,24 @@
+<?php
+    require  (__DIR__ . "/../templates/header.html");
+?>
 <div class="container">
     <div class="row">
         <div class="col-sm-6">
             <h1>Список абитуриентов</h1>
         </div>
         <div class="col-sm-6">
-            <form class="form-inline search-form" action="index.php" method="GET">
+            <form class="form-horizontal search-form" action="index.php" method="GET">
                 <div class="form-group">
-                    <label class=" control-label">Поиск</label>
-                    <div class="input-group ">        
-                        <input type="text" class="form-control" name="search" <?php if (isset($curl['search'])): ?>value="<?= $curl['search']; ?>"<?php endif; ?>/>
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn btn-default"/>Найти</button>
-                        </span>
+                    <label class="control-label col-sm-3" for="searchInput">Поиск</label>
+                    <div class="col-sm-9">
+                        <div class="input-group">        
+                            <input type="search" class="form-control" name="search" id="searchInput" results="5" 
+                                <?= (isset($curl['search'])) ? 'value="' . htmlspecialchars($curl['search'], ENT_QUOTES) . '"' : '';?>
+                                placeholder="Введите поисковый запрос" size="25">
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-default">Найти</button>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </form>            
@@ -19,8 +26,8 @@
     </div>    
     <?php if (isset($curl['search'])): ?>
         <div class="alert alert-info" role="alert">
-            <p>Показаны только абитуриенты, найденные по запросу «<?= $curl['search']; ?>».</p>
-            <p><a class="alert-link" href="<?php echo app\LinkHelper::getFirstPageLink(); ?>">Показать всех абитуриентов</a></p>
+            <p>Показаны только абитуриенты, найденные по запросу «<?= htmlspecialchars($curl['search'], ENT_QUOTES); ?>».</p>
+            <p><a class="alert-link" href="<?= app\LinkHelper::getFirstPageLink(); ?>">Показать всех абитуриентов</a></p>
         </div>
     <?php endif; ?>
     
@@ -35,19 +42,21 @@
                 <th><a href="<?= app\ViewHelper::html(app\LinkHelper::getSortingLink($curl, 'egePoints')); ?>">Баллы ЕГЭ <?= app\LinkHelper::getOrderIcon($curl, 'egePoints'); ?></a></th>
             </tr>
         </thead>
-        <?php if (isset($studentsValues) && is_array($studentsValues)):
-            foreach($studentsValues as $values): ?>
+        <?php if (isset($abiturients) && is_array($abiturients)):
+            foreach($abiturients as $abiturient): ?>
         <tbody>
             <tr>
-               <?php foreach($values as $value): ?>
+               <?php foreach($abiturient as $valueName => $value):
+                        if (in_array($valueName, $allowedValues)) : ?>
                 <td>
                     <?php if(isset($curl['search'])): ?>
-                        <?= app\ViewHelper::highlightSymbols(app\ViewHelper::html($value), $curl['search'], "<strong></strong>"); ?>                    
+                        <?= app\ViewHelper::markSameStr(htmlspecialchars(app\ViewHelper::html($value), ENT_QUOTES), $curl['search'], "<mark>%s</mark>"); ?>                    
                     <?php else: ?>
-                        <?= app\ViewHelper::html($value); ?>
+                        <?= htmlspecialchars(app\ViewHelper::html($value), ENT_QUOTES); ?>
                     <?php endif; ?>
                 </td>
-                <?php endforeach; ?>
+                <?php   endif;
+                    endforeach; ?>
             </tr>
         </tbody>
             <?php endforeach;
