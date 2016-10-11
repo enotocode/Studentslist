@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `studentslist`
+-- База данных: `abiturientslist`
 --
 
 -- --------------------------------------------------------
@@ -34,10 +34,10 @@ CREATE TABLE IF NOT EXISTS `abiturients` (
   `gender` enum('GENDER_MALE','GENDER_FEMALE') NOT NULL,
   `groupNum` varchar(10) NOT NULL,
   `email` varchar(63) NOT NULL,
-  `egePoints` varchar(3) NOT NULL,
+  `egePoints` smallint(3) NOT NULL,
   `dateOfBirth` year(4) NOT NULL,
   `registry` enum('REGISTRY_LOCAL','REGISTRY_NOT_LOCAL') NOT NULL,
-  `userPassword` varchar(32) NOT NULL,
+  `userPassHash` varchar(32) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4;
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `abiturients` (
 -- Дамп данных таблицы `abiturients`
 --
 
-INSERT INTO `abiturients` (`id`, `name`, `lastName`, `gender`, `groupNum`, `email`, `egePoints`, `dateOfBirth`, `registry`, `userPassword`) VALUES
+INSERT INTO `abiturients` (`id`, `name`, `lastName`, `gender`, `groupNum`, `email`, `egePoints`, `dateOfBirth`, `registry`, `userPassHash`) VALUES
 (12, 'Николай', 'Пушкин', 'GENDER_MALE', 'АТБ-7', 'nikola@mail.ru', '345', 1990, 'REGISTRY_LOCAL', 'pass_12345\r'),
 (2, 'Сергей', 'Плюшкин', 'GENDER_MALE', 'ПК-12-2', 'sergey@mail.ru', '243', 1991, 'REGISTRY_NOT_LOCAL', 'pass_12346\r'),
 (3, 'Александр', 'Коротышкин', 'GENDER_MALE', 'АТБ-7', 'alex@mail.ru', '365', 1991, 'REGISTRY_NOT_LOCAL', 'pass_12347\r'),
