@@ -1,28 +1,21 @@
 <?php
-// Константы
-const ASC = 'ASC';
-const DESC = 'DESC';
-const GENDER_MALE = "GENDER_MALE";
-const GENDER_FEMALE = "GENDER_FEMALE";
-const REGISTRY_LOCAL = "REGISTRY_LOCAL";
-const REGISTRY_NOT_LOCAL = "REGISTRY_NOT_LOCAL";
 
 // Автозагрузчик
-require_once '/../public/autoloader.php';
-
-// Количество записей на одной странице списка студентов
-$recordsPerPage = 5;
+require_once (__DIR__ . '/autoloader.php');
 
 // Настройки из внешнего файла
 if (!$settings = parse_ini_file('config.ini', TRUE)) {
-    throw new exception('Unable to open ' . $file . '.');
-} 
-$dns = $settings['database']['driver'] .
-':host=' . $settings['database']['host'] .
-((!empty($settings['database']['port'])) ? (';port=' . $settings['database']['port']) : '') .
-';dbname=' . $settings['database']['dbname'] . ';charset=' . $settings['database']['charset'];
+    throw new Exception('Unable to open ' . $file . '.');
+}
 
-$pdo = new PDO($dns, $settings['database']['username']);
+$dns = sprintf(
+               "mysql:host=%s; %s dbname=%s; charset=utf8mb4",
+               $settings['database']['host'],
+               (!empty($settings['database']['port'])) ? (';port=' . $settings['database']['port']) : '',
+               $settings['database']['dbname']
+               );
+
+$pdo = new PDO($dns, $settings['database']['username'], $settings['database']['password']);
 $pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );  
 
 // Создание класса Table gate away
