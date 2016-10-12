@@ -79,9 +79,7 @@ class AbiturientDataGateway
         } 
         if (isset($colum)) {            
             $sql .= " ORDER BY " . $this->sort[$colum];
-        }  else {
-            $sql .= " ORDER BY egePoints";
-        }
+        }  
         if (isset($order) && $order==self::DESC && (isset($colum))) {            
             $sql .= " DESC";
         } else if (isset($order) && $order==self::DESC && (!isset($colum))) {
